@@ -1,16 +1,20 @@
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 
+mod app;
+mod components;
+use app::AppComponent;
+
 #[wasm_bindgen]
 extern "C" {
     // define an imported JS function for use in RS
-    fn alert(s: &str);
+    pub fn alert(s: &str);
 
     #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
+    pub fn log(s: &str);
 
     #[wasm_bindgen(js_namespace = console, js_name = log)]
-    fn log_u32(a: u32);
+    pub fn log_u32(a: u32);
 }
 
 #[wasm_bindgen]
@@ -37,8 +41,8 @@ impl Component for Model {
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::AddOne => {
-                greet(&format!("NEW VALUE IS: {}", self.value + 1));
-                self.value += 1;
+                // greet(&format!("NEW VALUE IS: {}", self.value + 1));
+                // self.value += 1;
                 // returning true tells the tree to re-render children due to a change at this node
                 true
             }
@@ -49,10 +53,9 @@ impl Component for Model {
         let link = ctx.link();
 
         html! {
-            <div>
-                <button onclick={link.callback(|_| Msg::AddOne)}>{ "+1" }</button>
-                <p>{ self.value }</p>
-            </div>
+            <AppComponent />
+                // <button onclick={link.callback(|_| Msg::AddOne)}>{ "+1" }</button>
+                // <p>{ self.value }</p>
         }
     }
 }

@@ -8,6 +8,8 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::{JsValue, JsCast};
 use wasm_bindgen_futures::JsFuture;
 use yew::{classes, html, props, Children, Component, Context, Html, NodeRef, Properties};
+use crate::solana_connect::create_solana_connection;
+
 
 pub fn console_log(s: String) -> () {
     let a = js_sys::Array::new();
@@ -113,12 +115,19 @@ impl Component for AppComponent {
             Msg::GetData => {
                 ctx.link().send_future(async {
                 console_log(String::from("2"));
-                    match fetch_data(String::from("zakkaryv/lrn-yew")).await {
+                    match fetch_data(String::from("zakkvry/lrn-yew")).await {
                         Ok(text) => Msg::SetFetchingState(FetchState::Success(text.clone().into())),
                         Err(err) => Msg::SetFetchingState(FetchState::Failed(FetchError { err: err.clone().into()})),
                     }
                 });
                 console_log(String::from("3"));
+
+                ctx.link().send_future(async {
+                    match create_solana_connection().await {
+                        Ok(data) => Msg::SetFetchingState(FetchState::Success(JsValue::from(data))),
+                        Err(err) => Msg::SetFetchingState(FetchState::Failed(FetchError { err: JsValue::from("error")}))
+                    }
+                });
 
                 ctx.link().send_message(Msg::SetFetchingState(FetchState::Fetching));
                 false

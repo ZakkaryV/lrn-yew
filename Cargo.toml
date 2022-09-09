@@ -12,3 +12,4 @@ wasm-bindgen-futures = "0.4.32"
 js-sys = "0.3.59" 
 web-sys = { version = "0.3.59", features = [ "Headers", "Request", "RequestInit", "RequestMode", "Response", "Window" ] }
 stylist = { version = "0.10", features = ["yew_integration"] }
+solana-client-wasm = "1.11.0-beta"

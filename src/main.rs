@@ -3,6 +3,7 @@ use yew::prelude::*;
 
 mod app;
 mod components;
+mod solana_connect;
 use app::AppComponent;
 
 #[wasm_bindgen]

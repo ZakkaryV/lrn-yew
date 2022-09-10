@@ -7,9 +7,46 @@ use web_sys::{HtmlInputElement, Request, Response, RequestInit, RequestMode, con
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::{JsValue, JsCast};
 use wasm_bindgen_futures::JsFuture;
-use yew::{classes, html, props, Children, Component, Context, Html, NodeRef, Properties};
+use yew::{classes, html, props, Children, Component, Context, Html, NodeRef, Properties, function_component, use_state_eq, Callback};
 use crate::solana_connect::create_solana_connection;
 
+#[derive(Clone, Properties, PartialEq)]
+pub struct SolanaConnectButtonProps {
+    connected: bool,
+    set_connected: Callback<bool>
+}
+
+// #[styled_component(SolanaConnection)]
+#[function_component(SolanaConnectButton)]
+pub fn solana_connect_button(props: &SolanaConnectButtonProps) -> Html {
+    if props.connected {
+        return html! { <button>{ "Connect to Solana" }</button> };
+    };
+
+    html! {
+        <div>{ "Not connected to Solana mainnet." }</div> 
+    }
+} 
+
+#[derive(Clone, PartialEq, Properties)]
+pub struct SolanaConnectionProviderProps {
+    children: Html,
+}
+
+#[function_component(SolanaConnectionProvider)]
+pub fn solana_connection_provider(props: &SolanaConnectionProviderProps) -> Html {
+   let state = use_state_eq(|| false);
+   let set_state = {
+       let state = state.clone();
+       Callback::from(move |_| state.set(true))
+   };
+
+   return html! {
+       <div>
+           <SolanaConnectButton connected={*state} set_connected={&set_state} /> 
+       </div>
+   } 
+}
 
 pub fn console_log(s: String) -> () {
     let a = js_sys::Array::new();
@@ -169,6 +206,7 @@ impl Component for AppComponent {
                 <Stylewrapper />
                 <Header />
                 <Blogpost data={blogposts_data} />
+                <SolanaConnectionProvider />
                 // { ctx.props().children.clone() }
             </div>
         }

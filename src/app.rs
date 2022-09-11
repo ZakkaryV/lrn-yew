@@ -1,100 +1,14 @@
 use std::{error::{Error,}, fmt::{self, Debug, Display, Formatter}};
+use crate::console_log;
 use crate::components::blogpost::Blogpost;
 use crate::components::header::Header;
-use stylist::yew::{styled_component, Global};
+use crate::components::solana_connect::{create_solana_connection, SolanaConnectionProvider, SolanaConnectionProviderProps};
+use crate::global_styles::GlobalStyles;
 use js_sys::Reflect;
 use web_sys::{HtmlInputElement, Request, Response, RequestInit, RequestMode, console::log};
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::{JsValue, JsCast};
-use wasm_bindgen_futures::JsFuture;
 use yew::{classes, html, props, Children, Component, Context, Html, NodeRef, Properties, function_component, use_state_eq, Callback};
-use crate::solana_connect::create_solana_connection;
 
-#[derive(Clone, Properties, PartialEq)]
-pub struct SolanaConnectButtonProps {
-    connected: bool,
-    set_connected: Callback<bool>
-}
-
-// #[styled_component(SolanaConnection)]
-#[function_component(SolanaConnectButton)]
-pub fn solana_connect_button(props: &SolanaConnectButtonProps) -> Html {
-    if props.connected {
-        return html! { <button>{ "Connect to Solana" }</button> };
-    };
-
-    html! {
-        <div>{ "Not connected to Solana mainnet." }</div> 
-    }
-} 
-
-#[derive(Clone, PartialEq, Properties)]
-pub struct SolanaConnectionProviderProps {
-    children: Html,
-}
-
-#[function_component(SolanaConnectionProvider)]
-pub fn solana_connection_provider(props: &SolanaConnectionProviderProps) -> Html {
-   let state = use_state_eq(|| false);
-   let set_state = {
-       let state = state.clone();
-       Callback::from(move |_| state.set(true))
-   };
-
-   return html! {
-       <div>
-           <SolanaConnectButton connected={*state} set_connected={&set_state} /> 
-       </div>
-   } 
-}
-
-pub fn console_log(s: String) -> () {
-    let a = js_sys::Array::new();
-    a.push(&s.into());
-    log(&a)
-}
-
-#[wasm_bindgen]
-pub async fn fetch_data(repo: String) -> Result<JsValue, JsValue> {
-    let url = format!("https://api.github.com/repos/{}/branches/master", repo);
-    let mut opts = RequestInit::new();
-
-    opts.method("GET");
-    opts.mode(RequestMode::Cors);
-
-    let request = Request::new_with_str_and_init(&url, &opts)?;
-
-    request.headers().set("Accept", "application/vnd.github.v3+json")?;
-
-    let window = web_sys::window().unwrap();
-
-    let response_value = JsFuture::from(window.fetch_with_request(&request)).await?;
-
-    assert!(response_value.is_instance_of::<Response>());
-
-    let response: Response = response_value.dyn_into().unwrap();
-
-    let json = JsFuture::from(response.json()?).await?;
-
-    Ok(json)
-}
-
-
-#[styled_component(Stylewrapper)]
-pub fn stylewrapper() -> Html {
-    html! {
-        <Global css=r#"
-            background-color: #FBF0D9;
-            color: #5F4B32;
-            font-family: monospace;
-            padding: 0px 15px;
-
-            a {
-                text-decoration: underline;
-            }
-        "# />
-    }
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FetchError {
@@ -130,7 +44,7 @@ pub enum Msg {
     GetError,
 }
 
-#[derive(Clone, PartialEq, Properties)]
+#[derive(Clone, PartialEq, Properties, Default)]
 pub struct Props {}
 
 pub struct AppComponent {
@@ -152,7 +66,7 @@ impl Component for AppComponent {
             Msg::GetData => {
                 ctx.link().send_future(async {
                 console_log(String::from("2"));
-                    match fetch_data(String::from("zakkvry/lrn-yew")).await {
+                    match crate::utils::fetch::fetch(String::from("zakkvry/lrn-yew")).await {
                         Ok(text) => Msg::SetFetchingState(FetchState::Success(text.clone().into())),
                         Err(err) => Msg::SetFetchingState(FetchState::Failed(FetchError { err: err.clone().into()})),
                     }
@@ -203,7 +117,7 @@ impl Component for AppComponent {
 
         html! {
             <div>
-                <Stylewrapper />
+                <GlobalStyles />
                 <Header />
                 <Blogpost data={blogposts_data} />
                 <SolanaConnectionProvider />

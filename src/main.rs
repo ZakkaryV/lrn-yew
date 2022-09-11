@@ -3,7 +3,8 @@ use yew::prelude::*;
 
 mod app;
 mod components;
-mod solana_connect;
+mod global_styles;
+mod utils;
 use app::AppComponent;
 
 #[wasm_bindgen]
@@ -12,55 +13,20 @@ extern "C" {
     pub fn alert(s: &str);
 
     #[wasm_bindgen(js_namespace = console)]
-    pub fn log(s: &str);
+    pub fn log(s: String);
 
     #[wasm_bindgen(js_namespace = console, js_name = log)]
     pub fn log_u32(a: u32);
 }
 
 #[wasm_bindgen]
-pub fn greet(name: &str) {
-    log(&format!("Hello hello hello woorldld {}", name));
-}
-
-enum Msg {
-    AddOne,
-}
-
-struct Model {
-    value: i64,
-}
-
-impl Component for Model {
-    type Message = Msg;
-    type Properties = ();
-
-    fn create(_ctx: &Context<Self>) -> Self {
-        Self { value: 0 }
-    }
-
-    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
-        match msg {
-            Msg::AddOne => {
-                // greet(&format!("NEW VALUE IS: {}", self.value + 1));
-                // self.value += 1;
-                // returning true tells the tree to re-render children due to a change at this node
-                true
-            }
-        }
-    }
-
-    fn view(&self, ctx: &Context<Self>) -> Html {
-        let link = ctx.link();
-
-        html! {
-            <AppComponent />
-                // <button onclick={link.callback(|_| Msg::AddOne)}>{ "+1" }</button>
-                // <p>{ self.value }</p>
-        }
-    }
+pub fn console_log(s: String) -> () {
+    let a = js_sys::Array::new();
+    a.push(&s.into());
+    let rust_string: String = a.to_string().into();
+    log(rust_string);
 }
 
 fn main() {
-    yew::start_app::<Model>();
+    yew::start_app::<AppComponent>();
 }

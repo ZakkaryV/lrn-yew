@@ -1,3 +1,5 @@
+extern crate web3_rs as web3;
+
 use js_sys;
 use solana_client_wasm::{
     ClientError,
@@ -5,6 +7,7 @@ use solana_client_wasm::{
     WasmClient,
 };
 use yew::{classes, html, props, Children, Component, Context, Html, NodeRef, Properties, function_component, use_state_eq, Callback};
+use web3::{core::{Provider, RpcClient}, solana};
 
 #[derive(Clone, Properties, PartialEq)]
 pub struct SolanaConnectButtonProps {

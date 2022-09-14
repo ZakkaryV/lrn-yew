@@ -1,5 +1,5 @@
 use js_sys::Reflect;
-use web_sys::{HtmlInputElement, Request, Response, RequestInit, RequestMode, console::log};
+use web_sys::{HtmlInputElement, Request, Response, RequestInit, RequestMode};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::{JsValue, JsCast};
 use wasm_bindgen_futures::JsFuture;

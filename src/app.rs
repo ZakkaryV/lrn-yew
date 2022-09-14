@@ -1,13 +1,14 @@
 use std::{error::{Error,}, fmt::{self, Debug, Display, Formatter}};
-use crate::console_log;
 use crate::components::blogpost::Blogpost;
 use crate::components::header::Header;
 use crate::components::solana_connect::{create_solana_connection, SolanaConnectionProvider, SolanaConnectionProviderProps};
 use crate::global_styles::GlobalStyles;
 use js_sys::Reflect;
-use web_sys::{HtmlInputElement, Request, Response, RequestInit, RequestMode, console::log};
+use web_sys::{HtmlInputElement, Request, Response, RequestInit, RequestMode};
 use wasm_bindgen::{JsValue, JsCast};
 use yew::{classes, html, props, Children, Component, Context, Html, NodeRef, Properties, function_component, use_state_eq, Callback};
+use wasm_logger;
+use log::info;
 
 
 #[derive(Debug, Clone, PartialEq)]
@@ -59,19 +60,19 @@ impl Component for AppComponent {
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::SetFetchingState(fetch_state) => {
-                console_log(String::from("1"));
+                info!("1");
                 self.data = fetch_state;
                 true
             },
             Msg::GetData => {
                 ctx.link().send_future(async {
-                console_log(String::from("2"));
-                    match crate::utils::fetch::fetch(String::from("zakkvry/lrn-yew")).await {
+                    info!("2");
+                        match crate::utils::fetch::fetch(String::from("zakkvry/lrn-yew")).await {
                         Ok(text) => Msg::SetFetchingState(FetchState::Success(text.clone().into())),
                         Err(err) => Msg::SetFetchingState(FetchState::Failed(FetchError { err: err.clone().into()})),
                     }
                 });
-                console_log(String::from("3"));
+                info!("3");
 
                 ctx.link().send_future(async {
                     match create_solana_connection().await {
